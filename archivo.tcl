@@ -7,6 +7,7 @@ set MAX_VAL [expr $largo ** 2]
 
 
 
+
 proc round_2_decimal {x} {
     return [expr {double(round(100*$x))/100}]
 }
@@ -34,9 +35,13 @@ $ns color 2 Red
 set nf [open out.nam w]
 $ns namtrace-all $nf
 
+#crear archivo trace
+set tracefile [open out.tr w]
+$ns trace-all $tracefile
+
 # Define a 'finish' procedure
 proc finish {} {
-    global ns nf
+    global ns nf tracefile
     $ns flush-trace
 
     # Close the NAM trace file
@@ -101,8 +106,8 @@ for {set k 0} {$k < $MAX_VAL} {incr k} {
     $ns attach-agent $n($value) $udp([expr $k])
 
     set cbr([expr $k]) [new Application/Traffic/CBR]
-    $cbr([expr $k]) set packetSize_ 500
-    $cbr([expr $k]) set interval_ 0.005
+    $cbr([expr $k]) set packetSize_ 100
+    $cbr([expr $k]) set interval_ 0.01
     $cbr([expr $k]) attach-agent $udp([expr $k])
 
     set null([expr $k]) [new Agent/Null]
@@ -121,6 +126,7 @@ for {set k 0} {$k < $MAX_VAL} {incr k} {
 
 
 
-$ns at 5.0 "finish"
+
+$ns at 100.0 "finish"
 $ns run
 
