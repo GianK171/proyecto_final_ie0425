@@ -2,7 +2,7 @@
 
 ### ESTE VALOR ES EL QUE SE CAMBIA PARA AUMENTAR LA ESCALA
 ### BASICAMENTE CREA UNA CUADRICULA DE largo x largo
-set largo 10
+set largo 3
 set MAX_VAL [expr $largo ** 2]
 
 
@@ -83,4 +83,44 @@ for {set j 1} {$j < $MAX_VAL} {incr j} {
 }
 
 
+## crear los vectores de fuente y destino para el trafico
+
+for {set k 0} {$k < $MAX_VAL} {incr k} {
+    set destino($k) $k
+    if { $k == 0 } {
+        set fuente($k) [expr {$MAX_VAL - 1}]
+    } else {
+        set fuente($k) 0
+    }
+}
+
+for {set k 0} {$k < $MAX_VAL} {incr k} {
+    set udp([expr $k]) [new Agent/UDP]
+    $udp([expr $k]) set class_ $k
+    set value $fuente($k)
+    $ns attach-agent $n($value) $udp([expr $k])
+
+    set cbr([expr $k]) [new Application/Traffic/CBR]
+    $cbr([expr $k]) set packetSize_ 500
+    $cbr([expr $k]) set interval_ 0.005
+    $cbr([expr $k]) attach-agent $udp([expr $k])
+
+    set null([expr $k]) [new Agent/Null]
+    $ns attach-agent $n($destino($k)) $null([expr $k])
+
+    $ns connect $udp($k) $null($k)
+
+    if { $k == 0 } {
+        $ns at 0.5 "$cbr($k) start"
+        $ns at 2.5 "$cbr($k) stop"
+    } else {
+        $ns at 2.6 "$cbr($k) start"
+        $ns at 4.5 "$cbr($k) stop"
+    }
+}
+
+
+
+$ns at 5.0 "finish"
 $ns run
+
