@@ -105,12 +105,8 @@ for {set j 1} {$j < $MAX_VAL} {incr j} {
 ## crear los vectores de fuente y destino para el trafico
 
 for {set k 0} {$k < $MAX_VAL} {incr k} {
-    set destino($k) $k
-    if { $k == 0 } {
-        set fuente($k) [expr {$MAX_VAL - 1}]
-    } else {
-        set fuente($k) 0
-    }
+    set fuente($k) $k
+    set destino($k) 0
 }
 
 for {set k 0} {$k < $MAX_VAL} {incr k} {
@@ -129,13 +125,8 @@ for {set k 0} {$k < $MAX_VAL} {incr k} {
 
     $ns connect $udp($k) $null($k)
 
-    if { $k == 0 } {
-        $ns at 0.5 "$cbr($k) start"
-        $ns at 2.5 "$cbr($k) stop"
-    } else {
-        $ns at 2.6 "$cbr($k) start"
-        $ns at 4.5 "$cbr($k) stop"
-    }
+    $ns at 0.5 "$cbr($k) start"
+    $ns at 4.5 "$cbr($k) stop"
 }
 
 $ns at 100.0 "finish $run_simulation"
