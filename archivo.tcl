@@ -2,11 +2,40 @@
 
 ### ESTE VALOR ES EL QUE SE CAMBIA PARA AUMENTAR LA ESCALA
 ### BASICAMENTE CREA UNA CUADRICULA DE largo x largo
-set largo 3
+### AHORA ES UNA VARIABLE QUE ENTRA COMO ARGUMENTO DESDE
+### LA TERMINAL, ADEMAS SE PUEDE ESCOGER SI SE CORRE O NO
+### LA SIMULACION GRAFICA, PARA ELLO SE ESCRIBE COMO SEGUNDO
+### ARGUMENTO CUALQUIER VALOR.
+### ESTE ES EL COMANDO EN LA TERMINAL SIN SIMULACION GRAFICA:
+###             ns archivo.tcl <numero>
+### ESTE ES EL COMANDO EN LA TERMINAL CON SIMULACION GRAFICA
+###             ns archivo.tcl <numero> <numero/letra/string>
+
+set largo [lindex $argv 0]
 set MAX_VAL [expr $largo ** 2]
+if {$argc == 2} {
+    set run_simulation 1
+} else {
+    set run_simulation 0
+}
 
+# Define a 'finish' procedure
+proc finish { run_simulation } {
+    global ns nf tracefile
+    $ns flush-trace
 
+    # Close the NAM trace file
+    close $nf
 
+    # Execute NAM on the trace file
+    if { $run_simulation == 1 } {
+        puts "Simulacion grafica activada"
+        exec nam out.nam &
+    } else {
+        puts "Se ejecuto el script sin simulacion grafica"
+    }
+    exit 0
+}
 
 proc round_2_decimal {x} {
     return [expr {double(round(100*$x))/100}]
@@ -38,21 +67,6 @@ $ns namtrace-all $nf
 #crear archivo trace
 set tracefile [open out.tr w]
 $ns trace-all $tracefile
-
-# Define a 'finish' procedure
-proc finish {} {
-    global ns nf tracefile
-    $ns flush-trace
-
-    # Close the NAM trace file
-    close $nf
-
-    # Execute NAM on the trace file
-    exec nam out.nam &
-    exit 0
-}
-
-
 
 
 
@@ -124,9 +138,6 @@ for {set k 0} {$k < $MAX_VAL} {incr k} {
     }
 }
 
-
-
-
-$ns at 100.0 "finish"
+$ns at 100.0 "finish $run_simulation"
 $ns run
 
